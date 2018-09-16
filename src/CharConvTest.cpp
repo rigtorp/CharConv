@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-#include "../include/CharConv.h"
 #include <catch2/catch.hpp>
+#include <rigtorp/CharConv.h>
 
 template <typename T> bool check_to_chars(T value, std::string_view expected) {
   using namespace rigtorp;

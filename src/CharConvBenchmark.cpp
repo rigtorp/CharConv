@@ -20,12 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-#include "../include/CharConv.h"
 #include <algorithm>
 #include <benchmark/benchmark.h>
+#include <charconv>
 #include <cmath>
 #include <iostream>
 #include <random>
+#include <rigtorp/CharConv.h>
 #include <sstream>
 
 auto generate_ints(int digits) {
@@ -121,7 +122,20 @@ static void BM_stringstream(benchmark::State &state) {
   }
 }
 
-static void BM_to_chars_naive(benchmark::State &state) {
+static void BM_std_to_chars(benchmark::State &state) {
+  const auto v = generate_ints(state.range(0));
+  std::array<char, 16> buf = {};
+  int i = 0;
+  for (auto _ : state) {
+    benchmark::DoNotOptimize(buf.data());
+    benchmark::DoNotOptimize(
+        std::to_chars(buf.data(), buf.data() + buf.size(), v[i % v.size()]));
+    benchmark::ClobberMemory();
+    ++i;
+  }
+}
+
+static void BM_rigtorp_to_chars_naive(benchmark::State &state) {
   const auto v = generate_ints(state.range(0));
   std::array<char, 16> buf = {};
   int i = 0;
@@ -134,7 +148,7 @@ static void BM_to_chars_naive(benchmark::State &state) {
   }
 }
 
-static void BM_to_chars(benchmark::State &state) {
+static void BM_rigtorp_to_chars(benchmark::State &state) {
   const auto v = generate_ints(state.range(0));
   std::array<char, 16> buf = {};
   int i = 0;
@@ -174,7 +188,20 @@ static void BM_stoi(benchmark::State &state) {
   }
 }
 
-static void BM_from_chars_unchecked(benchmark::State &state) {
+static void BM_std_from_chars(benchmark::State &state) {
+  auto v = generate_strings(state.range(0));
+  int val = 0;
+  int i = 0;
+  for (auto _ : state) {
+    const auto &s = v[i % v.size()];
+    benchmark::DoNotOptimize(val);
+    benchmark::DoNotOptimize(
+        std::from_chars(s.data(), s.data() + s.size(), val));
+    ++i;
+  }
+}
+
+static void BM_rigtorp_from_chars_unchecked(benchmark::State &state) {
   auto v = generate_strings(state.range(0));
   uint32_t val = 0;
   int i = 0;
@@ -187,9 +214,9 @@ static void BM_from_chars_unchecked(benchmark::State &state) {
   }
 }
 
-static void BM_from_chars(benchmark::State &state) {
+static void BM_rigtorp_from_chars(benchmark::State &state) {
   auto v = generate_strings(state.range(0));
-  int32_t val = 0;
+  int val = 0;
   int i = 0;
   for (auto _ : state) {
     const auto &s = v[i % v.size()];
@@ -233,7 +260,7 @@ BENCHMARK(BM_stringstream)
     ->Arg(8)
     ->Arg(9);
 
-BENCHMARK(BM_to_chars_naive)
+BENCHMARK(BM_std_to_chars)
     ->Arg(1)
     ->Arg(2)
     ->Arg(3)
@@ -244,7 +271,18 @@ BENCHMARK(BM_to_chars_naive)
     ->Arg(8)
     ->Arg(9);
 
-BENCHMARK(BM_to_chars)
+BENCHMARK(BM_rigtorp_to_chars_naive)
+    ->Arg(1)
+    ->Arg(2)
+    ->Arg(3)
+    ->Arg(4)
+    ->Arg(5)
+    ->Arg(6)
+    ->Arg(7)
+    ->Arg(8)
+    ->Arg(9);
+
+BENCHMARK(BM_rigtorp_to_chars)
     ->Arg(1)
     ->Arg(2)
     ->Arg(3)
@@ -288,7 +326,7 @@ BENCHMARK(BM_stoi)
     ->Arg(8)
     ->Arg(9);
 
-BENCHMARK(BM_from_chars_unchecked)
+BENCHMARK(BM_std_from_chars)
     ->Arg(1)
     ->Arg(2)
     ->Arg(3)
@@ -299,7 +337,18 @@ BENCHMARK(BM_from_chars_unchecked)
     ->Arg(8)
     ->Arg(9);
 
-BENCHMARK(BM_from_chars)
+BENCHMARK(BM_rigtorp_from_chars_unchecked)
+    ->Arg(1)
+    ->Arg(2)
+    ->Arg(3)
+    ->Arg(4)
+    ->Arg(5)
+    ->Arg(6)
+    ->Arg(7)
+    ->Arg(8)
+    ->Arg(9);
+
+BENCHMARK(BM_rigtorp_from_chars)
     ->Arg(1)
     ->Arg(2)
     ->Arg(3)
