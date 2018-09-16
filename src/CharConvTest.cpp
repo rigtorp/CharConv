@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2017 Erik Rigtorp <erik@rigtorp.se>
+Copyright (c) 2018 Erik Rigtorp <erik@rigtorp.se>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -37,28 +37,67 @@ TEST_CASE("to_chars") {
   SECTION("min") {
     CHECK(check_to_chars(std::numeric_limits<int32_t>::min(), "-2147483648"));
     CHECK(check_to_chars(std::numeric_limits<uint32_t>::min(), "0"));
+    CHECK(check_to_chars(std::numeric_limits<int64_t>::min(),
+                         "-9223372036854775808"));
+    CHECK(check_to_chars(std::numeric_limits<uint64_t>::min(), "0"));
   }
 
   SECTION("max") {
     CHECK(check_to_chars(std::numeric_limits<int32_t>::max(), "2147483647"));
     CHECK(check_to_chars(std::numeric_limits<uint32_t>::max(), "4294967295"));
+    CHECK(check_to_chars(std::numeric_limits<int64_t>::max(),
+                         "9223372036854775807"));
+    CHECK(check_to_chars(std::numeric_limits<uint64_t>::max(),
+                         "18446744073709551615"));
   }
 
   SECTION("0") {
     CHECK(check_to_chars<int32_t>(0, "0"));
     CHECK(check_to_chars<uint32_t>(0, "0"));
+    CHECK(check_to_chars<int64_t>(0, "0"));
+    CHECK(check_to_chars<uint64_t>(0, "0"));
   }
 
   SECTION("log10") {
-    int val = 1;
-    for (int i = 0; i < 10; ++i) {
-      val *= 10;
-      CHECK(check_to_chars<int32_t>(val, std::to_string(val)));
-      CHECK(check_to_chars<int32_t>(val - 1, std::to_string(val - 1)));
-      CHECK(check_to_chars<int32_t>(-val, std::to_string(-val)));
-      CHECK(check_to_chars<int32_t>(-val + 1, std::to_string(-val + 1)));
-      CHECK(check_to_chars<uint32_t>(val, std::to_string(val)));
-      CHECK(check_to_chars<uint32_t>(val - 1, std::to_string(val - 1)));
+
+    SECTION("int32") {
+      int32_t val = 1;
+      for (int i = 0; i < 10; ++i) {
+        val *= 10;
+        CHECK(check_to_chars<int32_t>(val, std::to_string(val)));
+        CHECK(check_to_chars<int32_t>(val - 1, std::to_string(val - 1)));
+        CHECK(check_to_chars<int32_t>(-val, std::to_string(-val)));
+        CHECK(check_to_chars<int32_t>(-val + 1, std::to_string(-val + 1)));
+      }
+    }
+
+    SECTION("uint32") {
+      uint32_t val = 1;
+      for (int i = 0; i < 10; ++i) {
+        val *= 10;
+        CHECK(check_to_chars<uint32_t>(val, std::to_string(val)));
+        CHECK(check_to_chars<uint32_t>(val - 1, std::to_string(val - 1)));
+      }
+    }
+
+    SECTION("int64") {
+      int64_t val = 1;
+      for (int i = 0; i < 20; ++i) {
+        val *= 10;
+        CHECK(check_to_chars<int64_t>(val, std::to_string(val)));
+        CHECK(check_to_chars<int64_t>(val - 1, std::to_string(val - 1)));
+        CHECK(check_to_chars<int64_t>(-val, std::to_string(-val)));
+        CHECK(check_to_chars<int64_t>(-val + 1, std::to_string(-val + 1)));
+      }
+    }
+
+    SECTION("uint64") {
+      uint64_t val = 1;
+      for (int i = 0; i < 21; ++i) {
+        val *= 10;
+        CHECK(check_to_chars<uint64_t>(val, std::to_string(val)));
+        CHECK(check_to_chars<uint64_t>(val - 1, std::to_string(val - 1)));
+      }
     }
   }
 
@@ -87,40 +126,87 @@ TEST_CASE("from_chars") {
   SECTION("min") {
     CHECK(check_from_chars(std::numeric_limits<int32_t>::min(), "-2147483648"));
     CHECK(check_from_chars(std::numeric_limits<uint32_t>::min(), "0"));
+    CHECK(check_from_chars(std::numeric_limits<int64_t>::min(),
+                           "-9223372036854775808"));
+    CHECK(check_from_chars(std::numeric_limits<uint64_t>::min(), "0"));
   }
 
   SECTION("max") {
     CHECK(check_from_chars(std::numeric_limits<int32_t>::max(), "2147483647"));
     CHECK(check_from_chars(std::numeric_limits<uint32_t>::max(), "4294967295"));
+    CHECK(check_from_chars(std::numeric_limits<int64_t>::max(),
+                           "9223372036854775807"));
+    CHECK(check_from_chars(std::numeric_limits<uint64_t>::max(),
+                           "18446744073709551615"));
   }
 
   SECTION("0") {
     CHECK(check_from_chars<int32_t>(0, "0"));
     CHECK(check_from_chars<uint32_t>(0, "0"));
+    CHECK(check_from_chars<int64_t>(0, "0"));
+    CHECK(check_from_chars<uint64_t>(0, "0"));
   }
 
   SECTION("log10") {
-    int val = 1;
-    for (int i = 0; i < 10; ++i) {
-      val *= 10;
-      CHECK(check_from_chars<int32_t>(val, std::to_string(val)));
-      CHECK(check_from_chars<int32_t>(val - 1, std::to_string(val - 1)));
-      CHECK(check_from_chars<int32_t>(-val, std::to_string(-val)));
-      CHECK(check_from_chars<int32_t>(-val + 1, std::to_string(-val + 1)));
-      CHECK(check_from_chars<uint32_t>(val, std::to_string(val)));
-      CHECK(check_from_chars<uint32_t>(val - 1, std::to_string(val - 1)));
+
+    SECTION("int32_t") {
+      int32_t val = 1;
+      for (int i = 0; i < 10; ++i) {
+        val *= 10;
+        CHECK(check_from_chars<int32_t>(val, std::to_string(val)));
+        CHECK(check_from_chars<int32_t>(val - 1, std::to_string(val - 1)));
+        CHECK(check_from_chars<int32_t>(-val, std::to_string(-val)));
+        CHECK(check_from_chars<int32_t>(-val + 1, std::to_string(-val + 1)));
+      }
+    }
+
+    SECTION("uint32_t") {
+      uint32_t val = 1;
+      for (int i = 0; i < 10; ++i) {
+        val *= 10;
+        CHECK(check_from_chars<uint32_t>(val, std::to_string(val)));
+        CHECK(check_from_chars<uint32_t>(val - 1, std::to_string(val - 1)));
+      }
+    }
+
+    SECTION("int64_t") {
+      int64_t val = 1;
+      for (int i = 0; i < 20; ++i) {
+        val *= 10;
+        CHECK(check_from_chars<int64_t>(val, std::to_string(val)));
+        CHECK(check_from_chars<int64_t>(val - 1, std::to_string(val - 1)));
+        CHECK(check_from_chars<int64_t>(-val, std::to_string(-val)));
+        CHECK(check_from_chars<int64_t>(-val + 1, std::to_string(-val + 1)));
+      }
+    }
+
+    SECTION("uint64_t") {
+      uint64_t val = 1;
+      for (int i = 0; i < 21; ++i) {
+        val *= 10;
+        CHECK(check_from_chars<uint64_t>(val, std::to_string(val)));
+        CHECK(check_from_chars<uint64_t>(val - 1, std::to_string(val - 1)));
+      }
     }
   }
 
   SECTION("zero padded") {
     CHECK(check_from_chars(std::numeric_limits<int32_t>::min(),
-                           "-000000000002147483648"));
+                           "-0000000000000000000002147483648"));
     CHECK(check_from_chars(std::numeric_limits<uint32_t>::min(),
-                           "0000000000000000000000"));
+                           "00000000000000000000000000000000"));
     CHECK(check_from_chars(std::numeric_limits<int32_t>::max(),
-                           "0000000000002147483647"));
+                           "00000000000000000000002147483647"));
     CHECK(check_from_chars(std::numeric_limits<uint32_t>::max(),
-                           "0000000000004294967295"));
+                           "00000000000000000000004294967295"));
+    CHECK(check_from_chars(std::numeric_limits<int64_t>::min(),
+                           "-0000000000009223372036854775808"));
+    CHECK(check_from_chars(std::numeric_limits<uint64_t>::min(),
+                           "00000000000000000000000000000000"));
+    CHECK(check_from_chars(std::numeric_limits<int64_t>::max(),
+                           "00000000000009223372036854775807"));
+    CHECK(check_from_chars(std::numeric_limits<uint64_t>::max(),
+                           "00000000000018446744073709551615"));
   }
 
   SECTION("invalid") {

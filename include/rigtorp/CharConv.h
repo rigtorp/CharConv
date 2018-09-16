@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2017 Erik Rigtorp <erik@rigtorp.se>
+Copyright (c) 2018 Erik Rigtorp <erik@rigtorp.se>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -40,11 +40,46 @@ struct from_chars_result {
 
 namespace detail {
 
-static constexpr uint32_t powers_of_10[] = {
-    0, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
+static constexpr uint64_t powers_of_10[] = {0,
+                                            10,
+                                            100,
+                                            1000,
+                                            10000,
+                                            100000,
+                                            1000000,
+                                            10000000,
+                                            100000000,
+                                            1000000000,
+                                            10000000000,
+                                            100000000000,
+                                            1000000000000,
+                                            10000000000000,
+                                            100000000000000,
+                                            1000000000000000,
+                                            10000000000000000,
+                                            100000000000000000,
+                                            1000000000000000000,
+                                            10000000000000000000ULL};
 
-constexpr uint32_t to_chars_len(uint32_t value) noexcept {
-  uint32_t t = (32 - __builtin_clz(value | 1)) * 1233 >> 12;
+constexpr unsigned to_chars_len(unsigned int value) noexcept {
+  static_assert(std::numeric_limits<unsigned int>::digits <= 64);
+  static_assert(std::numeric_limits<unsigned>::max() >=
+                std::numeric_limits<unsigned int>::digits);
+  const unsigned t =
+      (std::numeric_limits<unsigned int>::digits - __builtin_clz(value | 1)) *
+          1233 >>
+      12;
+  return t - (value < powers_of_10[t]) + 1;
+}
+
+constexpr unsigned to_chars_len(unsigned long value) noexcept {
+  static_assert(std::numeric_limits<unsigned long>::digits <= 64);
+  static_assert(std::numeric_limits<unsigned>::max() >=
+                std::numeric_limits<unsigned long>::digits);
+  const unsigned t =
+      (std::numeric_limits<unsigned long>::digits - __builtin_clzl(value | 1)) *
+          1233 >>
+      12;
   return t - (value < powers_of_10[t]) + 1;
 }
 
@@ -54,15 +89,14 @@ to_chars_result to_chars(char *first, char *last, T value) noexcept {
   using UT = std::make_unsigned_t<T>;
   static_assert(sizeof(UT) == sizeof(T));
   UT uvalue = value;
-  if
-    constexpr(std::is_signed<T>::value) {
-      if (value < 0) {
-        if (__builtin_expect(first != last, 1)) {
-          *first++ = '-';
-          uvalue = UT(~value) + UT(1);
-        }
+  if constexpr (std::is_signed<T>::value) {
+    if (value < 0) {
+      if (__builtin_expect(first != last, 1)) {
+        *first++ = '-';
+        uvalue = UT(~value) + UT(1);
       }
     }
+  }
   const auto len = to_chars_len(uvalue);
   if (__builtin_expect(last - first < len, 0)) {
     return {last, std::errc::value_too_large};
@@ -83,13 +117,12 @@ from_chars_result from_chars(const char *first, const char *last,
                              T &value) noexcept {
   static_assert(std::is_integral<T>::value);
   [[maybe_unused]] int sign = 1;
-  if
-    constexpr(std::is_signed<T>::value) {
-      if (first != last && *first == '-') {
-        sign = -1;
-        ++first;
-      }
+  if constexpr (std::is_signed<T>::value) {
+    if (first != last && *first == '-') {
+      sign = -1;
+      ++first;
     }
+  }
   if (__builtin_expect(first == last, 0)) {
     return {first, std::errc::invalid_argument};
   }
@@ -106,20 +139,18 @@ from_chars_result from_chars(const char *first, const char *last,
     }
     ++first;
   }
-  if
-    constexpr(std::is_signed<T>::value) {
-      T tmp;
-      if (__builtin_expect(__builtin_mul_overflow(res, sign, &tmp), 0)) {
-        return {first, std::errc::result_out_of_range};
-      }
-      value = tmp;
+  if constexpr (std::is_signed<T>::value) {
+    T tmp;
+    if (__builtin_expect(__builtin_mul_overflow(res, sign, &tmp), 0)) {
+      return {first, std::errc::result_out_of_range};
     }
-  else {
+    value = tmp;
+  } else {
     value = res;
   }
   return {first, {}};
 }
-}
+} // namespace detail
 
 inline to_chars_result to_chars(char *first, char *last,
                                 uint32_t value) noexcept {
@@ -128,6 +159,16 @@ inline to_chars_result to_chars(char *first, char *last,
 
 inline to_chars_result to_chars(char *first, char *last,
                                 int32_t value) noexcept {
+  return detail::to_chars(first, last, value);
+}
+
+inline to_chars_result to_chars(char *first, char *last,
+                                uint64_t value) noexcept {
+  return detail::to_chars(first, last, value);
+}
+
+inline to_chars_result to_chars(char *first, char *last,
+                                int64_t value) noexcept {
   return detail::to_chars(first, last, value);
 }
 
@@ -140,4 +181,14 @@ inline from_chars_result from_chars(const char *first, const char *last,
                                     int32_t &value) noexcept {
   return detail::from_chars(first, last, value);
 }
+
+inline from_chars_result from_chars(const char *first, const char *last,
+                                    uint64_t &value) noexcept {
+  return detail::from_chars(first, last, value);
 }
+
+inline from_chars_result from_chars(const char *first, const char *last,
+                                    int64_t &value) noexcept {
+  return detail::from_chars(first, last, value);
+}
+} // namespace rigtorp
