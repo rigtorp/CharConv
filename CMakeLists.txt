@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.2)
 
 project(CharConv CXX)
 
-set(CMAKE_CXX_FLAGS "-std=c++1z -Wall -Wextra -pedantic -Wnarrowing -march=native")
+set(CMAKE_CXX_STANDARD 17)
+add_compile_options(-Wall -Wextra -Werror -pedantic)
 
 option(BENCHMARK_ENABLE_TESTING OFF)
 add_subdirectory(vendor/benchmark)

@@ -67,7 +67,8 @@ auto generate_strings(int digits) {
   return v;
 }
 
-static bool to_chars_naive(char *first, char *last, uint32_t v) {
+static bool to_chars_naive(char *first, char *last[[maybe_unused]],
+                           uint32_t v) {
   char *p = first;
   while (v >= 10) {
     const auto q = v / 10;
