@@ -37,6 +37,9 @@ void BenchmarkReporter::PrintBasicContext(std::ostream *out,
 
   Out << LocalDateTimeString() << "\n";
 
+  if (context.executable_name)
+    Out << "Running " << context.executable_name << "\n";
+
   const CPUInfo &info = context.cpu_info;
   Out << "Run on (" << info.num_cpus << " X "
       << (info.cycles_per_second / 1000000.0) << " MHz CPU "
@@ -64,7 +67,18 @@ void BenchmarkReporter::PrintBasicContext(std::ostream *out,
 #endif
 }
 
+// No initializer because it's already initialized to NULL.
+const char *BenchmarkReporter::Context::executable_name;
+
 BenchmarkReporter::Context::Context() : cpu_info(CPUInfo::Get()) {}
+
+std::string BenchmarkReporter::Run::benchmark_name() const {
+  std::string name = run_name;
+  if (run_type == RT_Aggregate) {
+    name += "_" + aggregate_name;
+  }
+  return name;
+}
 
 double BenchmarkReporter::Run::GetAdjustedRealTime() const {
   double new_time = real_accumulated_time * GetTimeUnitMultiplier(time_unit);

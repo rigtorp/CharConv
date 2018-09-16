@@ -4,6 +4,7 @@ project(CharConv CXX)
 
 set(CMAKE_CXX_FLAGS "-std=c++1z -Wall -march=native")
 
+option(BENCHMARK_ENABLE_TESTING OFF)
 add_subdirectory(vendor/benchmark)
 
 enable_testing()
