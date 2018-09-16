@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-#include "CharConv.h"
+#include "../include/CharConv.h"
 #include <algorithm>
 #include <benchmark/benchmark.h>
 #include <cmath>
