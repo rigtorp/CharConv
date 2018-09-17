@@ -15,11 +15,15 @@ in the C++17 standard.
 
 - `to_chars_result to_chars(char *first, char *last, int32_t value) noexcept`
 - `to_chars_result to_chars(char *first, char *last, uint32_t value) noexcept`
+- `to_chars_result to_chars(char *first, char *last, int64_t value) noexcept`
+- `to_chars_result to_chars(char *first, char *last, uint64_t value) noexcept`
 
   Converts `value` into characters in base 10.  
 
 - `from_chars_result from_chars(const char *first, const char *last, int32_t &value) noexcept`
 - `from_chars_result from_chars(const char *first, const char *last, uint32_t &value) noexcept`
+- `from_chars_result from_chars(const char *first, const char *last, int64_t &value) noexcept`
+- `from_chars_result from_chars(const char *first, const char *last, uint64_t &value) noexcept`
 
   Converts the character sequence `[first, last]` representing
   a base 10 number to an integer value.
