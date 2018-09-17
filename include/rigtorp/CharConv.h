@@ -40,29 +40,29 @@ struct from_chars_result {
 
 namespace detail {
 
-static constexpr uint64_t powers_of_10[] = {0,
-                                            10,
-                                            100,
-                                            1000,
-                                            10000,
-                                            100000,
-                                            1000000,
-                                            10000000,
-                                            100000000,
-                                            1000000000,
-                                            10000000000,
-                                            100000000000,
-                                            1000000000000,
-                                            10000000000000,
-                                            100000000000000,
-                                            1000000000000000,
-                                            10000000000000000,
-                                            100000000000000000,
-                                            1000000000000000000,
+static constexpr uint64_t powers_of_10[] = {0ULL,
+                                            10ULL,
+                                            100ULL,
+                                            1000ULL,
+                                            10000ULL,
+                                            100000ULL,
+                                            1000000ULL,
+                                            10000000ULL,
+                                            100000000ULL,
+                                            1000000000ULL,
+                                            10000000000ULL,
+                                            100000000000ULL,
+                                            1000000000000ULL,
+                                            10000000000000ULL,
+                                            100000000000000ULL,
+                                            1000000000000000ULL,
+                                            10000000000000000ULL,
+                                            100000000000000000ULL,
+                                            1000000000000000000ULL,
                                             10000000000000000000ULL};
 
 constexpr unsigned to_chars_len(unsigned int value) noexcept {
-  static_assert(std::numeric_limits<unsigned int>::digits <= 64);
+  static_assert(std::numeric_limits<unsigned int>::digits <= 32);
   static_assert(std::numeric_limits<unsigned>::max() >=
                 std::numeric_limits<unsigned int>::digits);
   const unsigned t =
