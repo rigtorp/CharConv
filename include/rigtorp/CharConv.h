@@ -40,47 +40,50 @@ struct from_chars_result {
 
 namespace detail {
 
-static constexpr uint64_t powers_of_10[] = {0ULL,
-                                            10ULL,
-                                            100ULL,
-                                            1000ULL,
-                                            10000ULL,
-                                            100000ULL,
-                                            1000000ULL,
-                                            10000000ULL,
-                                            100000000ULL,
-                                            1000000000ULL,
-                                            10000000000ULL,
-                                            100000000000ULL,
-                                            1000000000000ULL,
-                                            10000000000000ULL,
-                                            100000000000000ULL,
-                                            1000000000000000ULL,
-                                            10000000000000000ULL,
-                                            100000000000000000ULL,
-                                            1000000000000000000ULL,
-                                            10000000000000000000ULL};
+static constexpr uint32_t powers_of_10_32[] = {
+    UINT32_C(0),          UINT32_C(10),       UINT32_C(100),
+    UINT32_C(1000),       UINT32_C(10000),    UINT32_C(100000),
+    UINT32_C(1000000),    UINT32_C(10000000), UINT32_C(100000000),
+    UINT32_C(1000000000),
+};
 
-constexpr unsigned to_chars_len(unsigned int value) noexcept {
-  static_assert(std::numeric_limits<unsigned int>::digits <= 32);
-  static_assert(std::numeric_limits<unsigned>::max() >=
-                std::numeric_limits<unsigned int>::digits);
-  const unsigned t =
-      (std::numeric_limits<unsigned int>::digits - __builtin_clz(value | 1)) *
-          1233 >>
-      12;
-  return t - (value < powers_of_10[t]) + 1;
-}
+static constexpr uint64_t powers_of_10_64[] = {
+    UINT64_C(0),
+    UINT64_C(10),
+    UINT64_C(100),
+    UINT64_C(1000),
+    UINT64_C(10000),
+    UINT64_C(100000),
+    UINT64_C(1000000),
+    UINT64_C(10000000),
+    UINT64_C(100000000),
+    UINT64_C(1000000000),
+    UINT64_C(10000000000),
+    UINT64_C(100000000000),
+    UINT64_C(1000000000000),
+    UINT64_C(10000000000000),
+    UINT64_C(100000000000000),
+    UINT64_C(1000000000000000),
+    UINT64_C(10000000000000000),
+    UINT64_C(100000000000000000),
+    UINT64_C(1000000000000000000),
+    UINT64_C(10000000000000000000),
+};
 
-constexpr unsigned to_chars_len(unsigned long value) noexcept {
-  static_assert(std::numeric_limits<unsigned long>::digits <= 64);
+template <typename T> constexpr unsigned to_chars_len(T value) noexcept {
+  static_assert(std::is_unsigned<T>::value);
   static_assert(std::numeric_limits<unsigned>::max() >=
-                std::numeric_limits<unsigned long>::digits);
-  const unsigned t =
-      (std::numeric_limits<unsigned long>::digits - __builtin_clzl(value | 1)) *
-          1233 >>
-      12;
-  return t - (value < powers_of_10[t]) + 1;
+                std::numeric_limits<T>::digits);
+  if constexpr (sizeof(T) <= sizeof(int)) {
+    static_assert(sizeof(int) == 4);
+    const unsigned t = (32 - __builtin_clz(value | 1)) * 1233 >> 12;
+    return t - (value < powers_of_10_32[t]) + 1;
+  } else {
+    static_assert(sizeof(T) <= sizeof(long long));
+    static_assert(sizeof(long long) == 8);
+    const unsigned t = (64 - __builtin_clzll(value | 1)) * 1233 >> 12;
+    return t - (value < powers_of_10_64[t]) + 1;
+  }
 }
 
 template <typename T>
