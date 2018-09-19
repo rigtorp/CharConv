@@ -1,0 +1,39 @@
+language: cpp
+
+sudo: false
+
+matrix:
+  include:
+
+    # gcc-7
+    - env: COMPILER=g++-7
+      compiler: gcc
+      os: linux
+      addons:
+        apt:
+          packages:
+            - g++-7
+          sources:
+            - ubuntu-toolchain-r-test
+
+    # gcc-8
+    - env: COMPILER=g++-8
+      compiler: gcc
+      os: linux
+      addons:
+        apt:
+          packages:
+            - g++-8
+          sources:
+            - ubuntu-toolchain-r-test
+
+before_script:
+  - export CXX=$COMPILER
+  - mkdir build
+  - cd build
+  - cmake --version
+  - cmake ..
+
+script:
+  - cmake --build . -- -j
+  - ctest -j

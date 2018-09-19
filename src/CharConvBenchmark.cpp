@@ -22,7 +22,6 @@ SOFTWARE.
 
 #include <algorithm>
 #include <benchmark/benchmark.h>
-#include <charconv>
 #include <cmath>
 #include <iostream>
 #include <random>
@@ -127,19 +126,6 @@ static void BM_stringstream(benchmark::State &state) {
   }
 }
 
-template <typename T> static void BM_std_to_chars(benchmark::State &state) {
-  const auto v = generate_ints<T>(state.range(0));
-  std::array<char, 32> buf = {};
-  int i = 0;
-  for (auto _ : state) {
-    benchmark::DoNotOptimize(buf.data());
-    benchmark::DoNotOptimize(
-        std::to_chars(buf.data(), buf.data() + buf.size(), v[i % v.size()]));
-    benchmark::ClobberMemory();
-    ++i;
-  }
-}
-
 static void BM_rigtorp_to_chars_naive(benchmark::State &state) {
   const auto v = generate_ints<int>(state.range(0));
   std::array<char, 16> buf = {};
@@ -193,19 +179,6 @@ static void BM_stoi(benchmark::State &state) {
   }
 }
 
-template <typename T> static void BM_std_from_chars(benchmark::State &state) {
-  const auto v = generate_strings<T>(state.range(0));
-  T val = 0;
-  int i = 0;
-  for (auto _ : state) {
-    const auto &s = v[i % v.size()];
-    benchmark::DoNotOptimize(val);
-    benchmark::DoNotOptimize(
-        std::from_chars(s.data(), s.data() + s.size(), val));
-    ++i;
-  }
-}
-
 static void BM_rigtorp_from_chars_unchecked(benchmark::State &state) {
   const auto v = generate_strings<uint32_t>(state.range(0));
   uint32_t val = 0;
@@ -233,6 +206,38 @@ static void BM_rigtorp_from_chars(benchmark::State &state) {
   }
 }
 
+#if __has_include(<charconv>)
+
+#include <charconv>
+
+template <typename T> static void BM_std_to_chars(benchmark::State &state) {
+  const auto v = generate_ints<T>(state.range(0));
+  std::array<char, 32> buf = {};
+  int i = 0;
+  for (auto _ : state) {
+    benchmark::DoNotOptimize(buf.data());
+    benchmark::DoNotOptimize(
+        std::to_chars(buf.data(), buf.data() + buf.size(), v[i % v.size()]));
+    benchmark::ClobberMemory();
+    ++i;
+  }
+}
+
+template <typename T> static void BM_std_from_chars(benchmark::State &state) {
+  const auto v = generate_strings<T>(state.range(0));
+  T val = 0;
+  int i = 0;
+  for (auto _ : state) {
+    const auto &s = v[i % v.size()];
+    benchmark::DoNotOptimize(val);
+    benchmark::DoNotOptimize(
+        std::from_chars(s.data(), s.data() + s.size(), val));
+    ++i;
+  }
+}
+
+#endif
+
 template <int N> static void Digits(benchmark::internal::Benchmark *b) {
   for (int i = 1; i <= N; ++i) {
     b->Arg(i);
@@ -242,10 +247,12 @@ template <int N> static void Digits(benchmark::internal::Benchmark *b) {
 BENCHMARK(BM_sprintf)->Apply(Digits<9>);
 BENCHMARK(BM_to_string)->Apply(Digits<9>);
 BENCHMARK(BM_stringstream)->Apply(Digits<9>);
+#if __has_include(<charconv>)
 BENCHMARK_TEMPLATE(BM_std_to_chars, int32_t)->Apply(Digits<9>);
 BENCHMARK_TEMPLATE(BM_std_to_chars, uint32_t)->Apply(Digits<9>);
 BENCHMARK_TEMPLATE(BM_std_to_chars, int64_t)->Apply(Digits<19>);
 BENCHMARK_TEMPLATE(BM_std_to_chars, uint64_t)->Apply(Digits<19>);
+#endif
 BENCHMARK(BM_rigtorp_to_chars_naive)->Apply(Digits<9>);
 BENCHMARK_TEMPLATE(BM_rigtorp_to_chars, int32_t)->Apply(Digits<9>);
 BENCHMARK_TEMPLATE(BM_rigtorp_to_chars, uint32_t)->Apply(Digits<9>);
@@ -254,10 +261,12 @@ BENCHMARK_TEMPLATE(BM_rigtorp_to_chars, uint64_t)->Apply(Digits<19>);
 BENCHMARK(BM_atoi)->Apply(Digits<9>);
 BENCHMARK(BM_strtol)->Apply(Digits<9>);
 BENCHMARK(BM_stoi)->Apply(Digits<9>);
+#if __has_include(<charconv>)
 BENCHMARK_TEMPLATE(BM_std_from_chars, int32_t)->Apply(Digits<9>);
 BENCHMARK_TEMPLATE(BM_std_from_chars, uint32_t)->Apply(Digits<9>);
 BENCHMARK_TEMPLATE(BM_std_from_chars, int64_t)->Apply(Digits<19>);
 BENCHMARK_TEMPLATE(BM_std_from_chars, uint64_t)->Apply(Digits<19>);
+#endif
 BENCHMARK(BM_rigtorp_from_chars_unchecked)->Apply(Digits<9>);
 BENCHMARK_TEMPLATE(BM_rigtorp_from_chars, int32_t)->Apply(Digits<9>);
 BENCHMARK_TEMPLATE(BM_rigtorp_from_chars, uint32_t)->Apply(Digits<9>);

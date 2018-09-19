@@ -1,6 +1,7 @@
 # CharConv.h
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/rigtorp/HashMap/master/LICENSE)
+[![Build Status](https://travis-ci.org/rigtorp/CharConv.svg?branch=master)](https://travis-ci.org/rigtorp/CharConv)
 
 Fast integer to string and string to integer conversion functions.
 
