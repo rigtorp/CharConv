@@ -1,18 +1,16 @@
 # CharConv.h
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/rigtorp/HashMap/master/LICENSE)
-[![Build Status](https://travis-ci.org/rigtorp/CharConv.svg?branch=master)](https://travis-ci.org/rigtorp/CharConv)
 
 Fast integer to string and string to integer conversion functions.
 
 ## Usage
 
-`CharConv.h` exposes two functions: `to_chars` and `from_chars`. 
-The API is similar, but not identical to that of 
-[to_chars](http://en.cppreference.com/w/cpp/utility/to_chars)
-and
-[from_chars](http://en.cppreference.com/w/cpp/utility/from_chars)
-in the C++17 standard.
+`CharConv.h` exposes two functions: `to_chars` and `from_chars`. The API is
+similar, but not identical to that of
+[to_chars](http://en.cppreference.com/w/cpp/utility/to_chars) and
+[from_chars](http://en.cppreference.com/w/cpp/utility/from_chars) in the C++17
+standard.
 
 - `to_chars_result to_chars(char *first, char *last, int32_t value) noexcept`
 - `to_chars_result to_chars(char *first, char *last, uint32_t value) noexcept`
